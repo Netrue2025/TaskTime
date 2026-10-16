@@ -45,7 +45,7 @@ export function TaskSheet({ task, currentUserId, onClose, onSaved, onDeleted }: 
     <section className="task-sheet" role="dialog" aria-modal="true" aria-labelledby="task-sheet-title">
       <div className="sheet-handle" /><header><div><span className="eyebrow">{task ? "TASK DETAILS" : "MAKE IT HAPPEN"}</span><h2 id="task-sheet-title">{task ? "Edit task" : "New task"}</h2></div><button className="icon-btn" onClick={onClose} aria-label="Close"><X /></button></header>
       <form onSubmit={save}>
-        <label>What needs doing?<input name="title" defaultValue={task?.title} required autoFocus maxLength={160} placeholder="e.g. Finish presentation" /></label>
+        <label>What needs doing?<input name="title" defaultValue={task?.title} required maxLength={160} placeholder="e.g. Finish presentation" /></label>
         <label><span><CalendarDays size={15} /> Date</span><input type="date" name="date" defaultValue={initial.date} required /></label>
         <div className="form-row time-row"><label>Start time<input type="time" name="startTime" defaultValue={initial.startTime} required /></label><label>End time<input type="time" name="endTime" defaultValue={initial.endTime} required /></label></div>
         <label>Note <small>Optional</small><textarea name="note" defaultValue={task?.note} maxLength={2000} rows={3} placeholder="A little context for later…" /></label>

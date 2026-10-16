@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import manifestText from "../public/manifest.webmanifest?raw";
 import worker from "../public/sw.js?raw";
+import profile from "./pages/Profile.tsx?raw";
+import taskSheet from "./components/TaskSheet.tsx?raw";
 
 describe("PWA shell", () => {
   it("has an installable manifest", () => {
@@ -18,5 +20,10 @@ describe("PWA shell", () => {
     expect(worker).toContain('data.notificationType === "overdue"');
     expect(worker).toContain("/icons/overdue-192.png");
     expect(worker).toContain("requireInteraction: overdue");
+  });
+  it("prevents iOS input zoom and explains iPhone installation", () => {
+    expect(taskSheet).not.toContain("autoFocus");
+    expect(profile).toContain("Add TaskLite to your iPhone Home Screen");
+    expect(profile).toContain("Add to Home Screen");
   });
 });
