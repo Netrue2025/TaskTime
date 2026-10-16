@@ -1,4 +1,5 @@
 import path from "node:path";
+import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import express from "express";
 import cookieParser from "cookie-parser";
@@ -39,9 +40,15 @@ app.use((error: any, _req: express.Request, res: express.Response, _next: expres
   console.error(error); res.status(error?.name === "ValidationError" ? 400 : 500).json({ error: error?.name === "ValidationError" ? "Invalid request" : "Something went wrong" });
 });
 
-if (isProduction) {
-  const dirname = path.dirname(fileURLToPath(import.meta.url));
-  const client = path.resolve(dirname, "../../client/dist");
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+const client = path.resolve(dirname, "../../client/dist");
+const clientIndex = path.join(client, "index.html");
+
+// Railway may not set NODE_ENV automatically. Serve the compiled PWA based on
+// the artifact that the build produces, rather than an environment flag.
+if (existsSync(clientIndex)) {
   app.use(express.static(client, { maxAge: "1y", immutable: true, index: false }));
-  app.get("/{*splat}", (_req, res) => res.sendFile(path.join(client, "index.html")));
+  app.get("/{*splat}", (_req, res) => res.sendFile(clientIndex));
+} else if (isProduction) {
+  console.error(`Client build is missing at ${clientIndex}`);
 }
