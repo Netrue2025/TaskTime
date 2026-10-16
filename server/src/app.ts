@@ -47,8 +47,12 @@ const clientIndex = path.join(client, "index.html");
 // Railway may not set NODE_ENV automatically. Serve the compiled PWA based on
 // the artifact that the build produces, rather than an environment flag.
 if (existsSync(clientIndex)) {
-  app.use(express.static(client, { maxAge: "1y", immutable: true, index: false }));
-  app.get("/{*splat}", (_req, res) => res.sendFile(clientIndex));
+  const revalidate = (_req: express.Request, res: express.Response) => res.set("Cache-Control", "no-cache, no-store, must-revalidate");
+  app.get("/sw.js", (req, res) => { revalidate(req, res); res.sendFile(path.join(client, "sw.js")); });
+  app.get("/manifest.webmanifest", (req, res) => { revalidate(req, res); res.sendFile(path.join(client, "manifest.webmanifest")); });
+  app.use("/assets", express.static(path.join(client, "assets"), { maxAge: "1y", immutable: true }));
+  app.use(express.static(client, { maxAge: "1h", index: false }));
+  app.get("/{*splat}", (req, res) => { revalidate(req, res); res.sendFile(clientIndex); });
 } else if (isProduction) {
   console.error(`Client build is missing at ${clientIndex}`);
 }
