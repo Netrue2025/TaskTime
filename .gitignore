@@ -1,0 +1,11 @@
+node_modules/
+node_modules_incomplete_*/
+*/node_modules_incomplete_*/
+dist/
+.env
+.env.local
+coverage/
+*.log
+*.tsbuildinfo
+.DS_Store
+.openai/

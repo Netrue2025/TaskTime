@@ -1,0 +1,13 @@
+{
+  "name": "TaskLite",
+  "short_name": "TaskLite",
+  "description": "A lighter way to plan, finish, and share your day.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f8f3",
+  "theme_color": "#1f4b3f",
+  "icons": [
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icons/maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
