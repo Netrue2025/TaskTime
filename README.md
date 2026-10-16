@@ -35,6 +35,8 @@ npx web-push generate-vapid-keys
 
 Copy the public/private keys to `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY`, and set `VAPID_SUBJECT` to a `mailto:` or HTTPS contact. The browser asks for permission only after the user chooses **Task reminders** in Profile.
 
+For Railway, add all three values under **Service → Variables**, then redeploy. VAPID keys must remain stable: replacing them invalidates existing browser subscriptions.
+
 Task reminders are persistent Agenda jobs, not timers. Jobs are rescheduled on time changes, cancelled on completion/deletion, and re-check the task before sending. Browsers and operating systems control actual notification sound; TaskLite requests normal audible behavior with `silent: false` but cannot guarantee a tone. Push requires HTTPS in production and must be tested on a supported real device.
 
 ## PWA and offline behavior

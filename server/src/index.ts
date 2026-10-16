@@ -4,6 +4,7 @@ import { env } from "./config.js";
 import { initScheduler, stopScheduler } from "./scheduler.js";
 
 await mongoose.connect(env.MONGODB_URI);
+if (!env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY) console.warn("Web Push is disabled: configure VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY");
 await initScheduler();
 const server = app.listen(env.PORT, "0.0.0.0", () => console.log(`TaskLite listening on ${env.PORT}`));
 
