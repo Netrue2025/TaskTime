@@ -8,7 +8,7 @@ export const progressRouter = Router();
 
 async function summary(userId: string, start: Date, end: Date) {
   const [result] = await Task.aggregate([
-    { $match: { assignedTo: new mongoose.Types.ObjectId(userId), scheduledAt: { $gte: start, $lte: end }, status: { $ne: "cancelled" } } },
+    { $match: { $or: [{ assignedTo: new mongoose.Types.ObjectId(userId) }, { ownerId: new mongoose.Types.ObjectId(userId) }], scheduledAt: { $gte: start, $lte: end }, status: { $ne: "cancelled" } } },
     { $group: { _id: null, total: { $sum: 1 }, completed: { $sum: { $cond: [{ $eq: ["$status", "completed"] }, 1, 0] } } } }
   ]);
   return calculateProgress(result?.completed ?? 0, result?.total ?? 0);

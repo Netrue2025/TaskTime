@@ -17,11 +17,13 @@ export interface TaskDTO {
   title: string;
   note: string;
   scheduledAt: string;
+  endsAt: string;
   timezone: string;
   status: TaskStatus;
   reminderEnabled: boolean;
   completedAt: string | null;
   completedBy: string | null;
+  completedByUser: UserSummary | null;
   completionMode: CompletionMode;
   createdAt: string;
 }

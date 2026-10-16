@@ -15,10 +15,13 @@ const taskSchema = new Schema({
   title: { type: String, required: true, trim: true, maxlength: 160 },
   note: { type: String, default: "", trim: true, maxlength: 2000 },
   scheduledAt: { type: Date, required: true, index: true },
+  // Nullable for tasks created before start/end ranges were introduced.
+  endsAt: { type: Date, default: null, index: true },
   timezone: { type: String, required: true },
   status: { type: String, enum: ["pending", "completed", "cancelled"], default: "pending", index: true },
   reminderEnabled: { type: Boolean, default: true },
   reminderJobId: { type: String, default: null },
+  overdueReminderJobId: { type: String, default: null },
   completedAt: { type: Date, default: null },
   completedBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
   completionMode: { type: String, enum: ["assignee", "owner", "owner_on_behalf", null], default: null }

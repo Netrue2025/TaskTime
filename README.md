@@ -37,7 +37,7 @@ Copy the public/private keys to `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY`, and 
 
 For Railway, add all three values under **Service → Variables**, then redeploy. VAPID keys must remain stable: replacing them invalidates existing browser subscriptions.
 
-Task reminders are persistent Agenda jobs, not timers. Jobs are rescheduled on time changes, cancelled on completion/deletion, and re-check the task before sending. Browsers and operating systems control actual notification sound; TaskLite requests normal audible behavior with `silent: false` but cannot guarantee a tone. Push requires HTTPS in production and must be tested on a supported real device.
+Task reminders are persistent Agenda jobs, not timers. Every task has a start and end time. A start notification is sent to the responsible user, then an overdue notification is sent after the end time if the task is still incomplete. For shared tasks, the overdue notice also reaches the owner. Jobs are rescheduled on time changes, cancelled on completion/deletion, and re-check the task before sending. Browsers and operating systems control the final notification appearance and sound; TaskLite requests normal audible behavior, uses a red warning icon/title for overdue tasks, and requests a persistent overdue notice where supported. Push requires HTTPS in production and must be tested on a supported real device.
 
 ## PWA and offline behavior
 

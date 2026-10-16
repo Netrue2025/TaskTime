@@ -15,5 +15,8 @@ describe("PWA shell", () => {
   it("does not cache API responses and requests audible notifications", () => {
     expect(worker).toContain('pathname.startsWith("/api/")');
     expect(worker).toContain("silent: false");
+    expect(worker).toContain('data.notificationType === "overdue"');
+    expect(worker).toContain("/icons/overdue-192.png");
+    expect(worker).toContain("requireInteraction: overdue");
   });
 });

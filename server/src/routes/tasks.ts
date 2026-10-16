@@ -3,10 +3,10 @@ import mongoose from "mongoose";
 import { Task, TaskRemark, User } from "../models.js";
 import { assignmentSchema, remarkSchema, taskSchema, taskUpdateSchema } from "../validation.js";
 import { taskDTO, userDTO } from "../serializers.js";
-import { cancelReminder, scheduleReminder, sendPushToUser } from "../scheduler.js";
+import { cancelReminders, scheduleReminders, sendPushToUser } from "../scheduler.js";
 
 export const taskRouter = Router();
-const populate = [{ path: "ownerId", select: "name username email" }, { path: "assignedTo", select: "name username email" }];
+const populate = [{ path: "ownerId", select: "name username email" }, { path: "assignedTo", select: "name username email" }, { path: "completedBy", select: "name username email" }];
 const access = (userId: string) => ({ $or: [{ ownerId: userId }, { assignedTo: userId }] });
 
 taskRouter.get("/", async (req, res) => {
@@ -32,7 +32,7 @@ taskRouter.post("/", async (req, res) => {
   const assignedTo = parsed.data.assigneeId || userId;
   if (!await User.exists({ _id: assignedTo })) return res.status(404).json({ error: "Assignee not found" });
   const task = await Task.create({ ...parsed.data, ownerId: userId, assignedTo });
-  await scheduleReminder(task);
+  await scheduleReminders(task);
   if (assignedTo !== userId) await sendPushToUser(assignedTo, { title: "New task assigned", body: task.title, taskId: String(task._id), url: `/?task=${task._id}` });
   await task.populate(populate);
   res.status(201).json({ task: taskDTO(task) });
@@ -49,14 +49,23 @@ taskRouter.patch("/:id", async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0]?.message });
   const task = await Task.findOne({ _id: req.params.id, ownerId: req.userId });
   if (!task) return res.status(404).json({ error: "Task not found or not owned by you" });
-  Object.assign(task, parsed.data); await task.save(); await scheduleReminder(task); await task.populate(populate);
+  const { assigneeId, ...changes } = parsed.data;
+  const previousAssignee = String(task.assignedTo);
+  if (assigneeId && !await User.exists({ _id: assigneeId })) return res.status(404).json({ error: "Assignee not found" });
+  Object.assign(task, changes);
+  if (assigneeId) task.assignedTo = new mongoose.Types.ObjectId(assigneeId);
+  const finalEnd = task.endsAt instanceof Date ? task.endsAt : new Date(task.scheduledAt.getTime() + 60 * 60 * 1000);
+  if (finalEnd <= task.scheduledAt) return res.status(400).json({ error: "End time must be after start time" });
+  await task.save(); await scheduleReminders(task);
+  if (assigneeId && assigneeId !== previousAssignee) await sendPushToUser(task.assignedTo, { title: "New task assigned", body: task.title, notificationType: "assignment", taskId: String(task._id), url: `/?task=${task._id}` });
+  await task.populate(populate);
   res.json({ task: taskDTO(task) });
 });
 
 taskRouter.delete("/:id", async (req, res) => {
   const task = await Task.findOne({ _id: req.params.id, ownerId: req.userId });
   if (!task) return res.status(404).json({ error: "Task not found or not owned by you" });
-  await cancelReminder(task); await TaskRemark.deleteMany({ taskId: task._id }); await task.deleteOne(); res.status(204).end();
+  await cancelReminders(task); await TaskRemark.deleteMany({ taskId: task._id }); await task.deleteOne(); res.status(204).end();
 });
 
 taskRouter.post("/:id/complete", async (req, res) => {
@@ -67,7 +76,7 @@ taskRouter.post("/:id/complete", async (req, res) => {
   const isDelegated = String(task.ownerId) !== String(task.assignedTo);
   task.status = "completed"; task.completedAt = new Date(); task.completedBy = new mongoose.Types.ObjectId(userId);
   task.completionMode = isOwner ? (isDelegated ? "owner_on_behalf" : "owner") : "assignee";
-  await task.save(); await cancelReminder(task);
+  await task.save(); await cancelReminders(task);
   if (isDelegated) {
     const recipient = isOwner ? task.assignedTo : task.ownerId;
     await sendPushToUser(recipient, { title: "Shared task completed", body: task.title, taskId: String(task._id), url: `/?task=${task._id}` });
@@ -79,7 +88,7 @@ taskRouter.post("/:id/uncomplete", async (req, res) => {
   const task = await Task.findOne({ _id: req.params.id, ...access(req.userId) });
   if (!task) return res.status(404).json({ error: "Task not found" });
   task.status = "pending"; task.completedAt = null; task.completedBy = null; task.completionMode = null;
-  await task.save(); await scheduleReminder(task); await task.populate(populate); res.json({ task: taskDTO(task) });
+  await task.save(); await scheduleReminders(task); await task.populate(populate); res.json({ task: taskDTO(task) });
 });
 
 taskRouter.post("/:id/assign", async (req, res) => {
