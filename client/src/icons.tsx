@@ -13,6 +13,9 @@ export const Bell = icon(<><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-
 export const BellRing = icon(<><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4M2 8c0-2 .7-3.7 2-5M22 8c0-2-.7-3.7-2-5"/></>);
 export const CalendarDays = icon(<><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></>);
 export const CalendarCheck2 = icon(<><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18m5 5 2 2 4-4"/></>);
+export const ChevronLeft = icon(<path d="m15 18-6-6 6-6"/>);
+export const ChevronRight = icon(<path d="m9 18 6-6-6-6"/>);
+export const FolderKanban = icon(<><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M9 11v5m3-3v3m3-7v7"/></>);
 export const Search = icon(<><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></>);
 export const Trash2 = icon(<><path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6M10 11v6M14 11v6"/></>);
 export const MessageCircle = icon(<path d="M21 12a8 8 0 0 1-8 8H6l-4 2 1.5-4A9 9 0 1 1 21 12Z"/>);

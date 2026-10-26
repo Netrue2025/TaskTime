@@ -73,6 +73,8 @@ Authentication: `/api/auth/register`, `/login`, `/logout`, `/me`
 
 Tasks: `/api/tasks`, `/:id`, `/:id/complete`, `/:id/uncomplete`, `/:id/assign`, `/:id/unassign`
 
+Long-term projects: `/api/projects`, `/:id`, `/:id/sections`, `/:id/sections/:sectionId`, `/:id/members`, `/:id/members/:userId`. Project owners manage project details, sections, and membership; invited members can view projects and mark sections complete. Daily progress accepts an optional `date=YYYY-MM-DD` query parameter for day navigation.
+
 Collaboration: `/api/users/search`, `/api/tasks/:id/remarks`
 
 Progress: `/api/progress/daily`, `/weekly`, `/monthly`

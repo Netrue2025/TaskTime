@@ -13,6 +13,7 @@ import { taskRouter } from "./routes/tasks.js";
 import { progressRouter } from "./routes/progress.js";
 import { pushRouter } from "./routes/push.js";
 import { usersRouter } from "./routes/users.js";
+import { projectRouter } from "./routes/projects.js";
 
 export const app = express();
 app.set("trust proxy", 1);
@@ -35,6 +36,7 @@ app.use("/api/tasks", requireAuth, taskRouter);
 app.use("/api/progress", requireAuth, progressRouter);
 app.use("/api/push", requireAuth, pushRouter);
 app.use("/api/users", requireAuth, usersRouter);
+app.use("/api/projects", requireAuth, projectRouter);
 app.use("/api", (_req, res) => res.status(404).json({ error: "Not found" }));
 app.use((error: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error(error); res.status(error?.name === "ValidationError" ? 400 : 500).json({ error: error?.name === "ValidationError" ? "Invalid request" : "Something went wrong" });

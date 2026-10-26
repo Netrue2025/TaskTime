@@ -40,7 +40,24 @@ const subscriptionSchema = new Schema({
   userAgent: { type: String, default: "" }
 }, { timestamps: true });
 
+const projectSectionSchema = new Schema({
+  title: { type: String, required: true, trim: true, maxlength: 160 },
+  completed: { type: Boolean, default: false },
+  completedAt: { type: Date, default: null }
+}, { timestamps: true });
+
+const projectSchema = new Schema({
+  ownerId: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
+  memberIds: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  title: { type: String, required: true, trim: true, maxlength: 160 },
+  description: { type: String, default: "", trim: true, maxlength: 2000 },
+  sections: { type: [projectSectionSchema], default: [] }
+}, { timestamps: true });
+projectSchema.index({ ownerId: 1, updatedAt: -1 });
+projectSchema.index({ memberIds: 1, updatedAt: -1 });
+
 export const User = mongoose.model("User", userSchema);
 export const Task = mongoose.model("Task", taskSchema);
 export const TaskRemark = mongoose.model("TaskRemark", remarkSchema);
 export const PushSubscription = mongoose.model("PushSubscription", subscriptionSchema);
+export const Project = mongoose.model("Project", projectSchema);

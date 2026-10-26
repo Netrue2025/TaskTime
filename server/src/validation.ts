@@ -25,3 +25,7 @@ export const taskUpdateSchema = z.object({
 }).refine(endsAfterStart, { message: "End time must be after start time", path: ["endsAt"] });
 export const remarkSchema = z.object({ message: z.string().trim().min(1).max(600) });
 export const assignmentSchema = z.object({ assigneeId: z.string().regex(/^[a-f\d]{24}$/) });
+export const projectSchema = z.object({ title: z.string().trim().min(1).max(160), description: z.string().trim().max(2000).default("") });
+export const projectUpdateSchema = projectSchema.partial();
+export const projectSectionSchema = z.object({ title: z.string().trim().min(1).max(160) });
+export const projectMemberSchema = z.object({ userId: z.string().regex(/^[a-f\d]{24}$/) });

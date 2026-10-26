@@ -20,8 +20,12 @@ progressRouter.get("/:period", async (req, res) => {
   const userId = req.userId;
   const user = await User.findById(userId).select("timezone");
   const timezone = user?.timezone || "UTC";
-  const bounds = getPeriodBounds(period, timezone);
-  const result: any = { ...(await summary(userId, bounds.start, bounds.end)), label: period === "daily" ? "Today" : new Intl.DateTimeFormat("en", { timeZone: timezone, ...(period === "weekly" ? { month: "short", day: "numeric" } as const : { month: "long" } as const) }).format(bounds.start) };
+  const periodBounds = getPeriodBounds(period, timezone);
+  const bounds = period === "daily" && typeof req.query.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(req.query.date)
+    ? (() => { const [year, month, day] = req.query.date!.split("-").map(Number); const parts = { year, month, day, hour: 0, minute: 0, second: 0 }; const start = fromZonedParts(parts, timezone); const next = fromZonedParts(shiftLocal(parts, 1), timezone); return { ...periodBounds, start, end: new Date(next.getTime() - 1) }; })()
+    : periodBounds;
+  const selectedDate = period === "daily" && typeof req.query.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(req.query.date) ? req.query.date : null;
+  const result: any = { ...(await summary(userId, bounds.start, bounds.end)), label: period === "daily" ? selectedDate ? new Intl.DateTimeFormat("en", { timeZone: "UTC", weekday: "long", month: "long", day: "numeric" }).format(new Date(`${selectedDate}T12:00:00Z`)) : "Today" : new Intl.DateTimeFormat("en", { timeZone: timezone, ...(period === "weekly" ? { month: "short", day: "numeric" } as const : { month: "long" } as const) }).format(bounds.start) };
   if (period === "weekly") {
     result.points = await Promise.all(Array.from({ length: 7 }, async (_, i) => {
       const local = shiftLocal(bounds.startParts, i); const next = shiftLocal(bounds.startParts, i + 1);
