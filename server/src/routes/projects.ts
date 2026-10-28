@@ -12,7 +12,10 @@ const projectDTO = (project: any) => ({
   title: project.title, description: project.description, sections: project.sections.map((section: any) => ({ id: String(section._id), title: section.title, completed: section.completed, completedAt: section.completedAt?.toISOString() ?? null })),
   createdAt: project.createdAt.toISOString(), updatedAt: project.updatedAt.toISOString()
 });
-const populate = { path: "memberIds", select: "name username email" };
+const populate = [
+  { path: "ownerId", select: "name username email" },
+  { path: "memberIds", select: "name username email" }
+];
 const accessible = (userId: string) => ({ $or: [{ ownerId: userId }, { memberIds: userId }] });
 
 projectRouter.get("/", async (req, res) => {
