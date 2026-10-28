@@ -42,6 +42,7 @@ const subscriptionSchema = new Schema({
 
 const projectSectionSchema = new Schema({
   title: { type: String, required: true, trim: true, maxlength: 160 },
+  comment: { type: String, default: "", trim: true, maxlength: 1000 },
   completed: { type: Boolean, default: false },
   completedAt: { type: Date, default: null }
 }, { timestamps: true });

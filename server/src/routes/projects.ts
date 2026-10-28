@@ -9,7 +9,7 @@ const idIsValid = (id: string) => mongoose.isValidObjectId(id);
 const projectDTO = (project: any) => ({
   id: String(project._id), owner: project.ownerId?._id ? userDTO(project.ownerId) : { id: String(project.ownerId) },
   members: (project.memberIds || []).filter((member: any) => member && typeof member === "object" && member._id).map(userDTO),
-  title: project.title, description: project.description, sections: project.sections.map((section: any) => ({ id: String(section._id), title: section.title, completed: section.completed, completedAt: section.completedAt?.toISOString() ?? null })),
+  title: project.title, description: project.description, sections: project.sections.map((section: any) => ({ id: String(section._id), title: section.title, comment: section.comment || "", completed: section.completed, completedAt: section.completedAt?.toISOString() ?? null })),
   createdAt: project.createdAt.toISOString(), updatedAt: project.updatedAt.toISOString()
 });
 const populate = [
@@ -83,10 +83,12 @@ projectRouter.post("/:id/sections", async (req, res) => {
 
 projectRouter.patch("/:id/sections/:sectionId", async (req, res) => {
   if (!idIsValid(req.params.id) || !idIsValid(req.params.sectionId)) return res.status(404).json({ error: "Project section not found" });
-  if (typeof req.body?.completed !== "boolean") return res.status(400).json({ error: "Completion status is required" });
+  if (typeof req.body?.completed !== "boolean" || (req.body.comment !== undefined && typeof req.body.comment !== "string")) return res.status(400).json({ error: "Completion status and comment are required" });
+  if (typeof req.body.comment === "string" && req.body.comment.trim().length > 1000) return res.status(400).json({ error: "Section comment is too long" });
   const project = await Project.findOne({ _id: req.params.id, ...accessible(req.userId) });
   const section = project?.sections.id(req.params.sectionId);
   if (!project || !section) return res.status(404).json({ error: "Project section not found" });
+  if (req.body.comment !== undefined) section.comment = req.body.comment.trim();
   section.completed = req.body.completed;
   section.completedAt = section.completed ? new Date() : null;
   await project.save(); await project.populate(populate);
